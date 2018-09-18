@@ -2,6 +2,12 @@
 
 namespace pkpudev\graph;
 
+/**
+ * Constant Endpoint to Ms Graph Api
+ * 
+ * @author Zein Miftah <zmiftahdev@gmail.com>
+ * @license MIT
+ */
 class Endpoint
 {
   const BASE = 'https://login.microsoftonline.com';

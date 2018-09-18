@@ -11,16 +11,38 @@ use Microsoft\Graph\Model\FileAttachment;
 use Microsoft\Graph\Model\Message;
 use Microsoft\Graph\Model\User;
 
+/**
+ * Connection from Ms Graph Api
+ * 
+ * @author Zein Miftah <zmiftahdev@gmail.com>
+ * @license MIT
+ */
 class Connection
 {
+  /**
+   * @var Graph Graph object
+   */
   protected $graph;
 
+  /**
+   * Class Constructor
+   * 
+   * @param string $token Access Token
+   * @return void
+   */
   public function __construct($token)
   {
     $this->graph = new Graph;
     $this->graph->setAccessToken($token);
   }
 
+  /**
+   * Get Users with search params
+   * 
+   * @param string $search Search Param
+   * @param int $limit Search Limit, Default to 10
+   * @return User[] List of Users
+   */
   public function getUsers($search, $limit = 10)
   {
     $url = "/users?\$top=%s&\$filter=startswith(displayName,'%s')";
@@ -31,6 +53,13 @@ class Connection
     return $users;
   }
 
+  /**
+   * Get Messages/Mails from a user by userId
+   * 
+   * @param string $userId User ID
+   * @param int $limit Search Limit, Default to 10
+   * @return Message[] List of Messages
+   */
   public function getMessages($userId, $limit = 10)
   {
     $messages = $this->graph
@@ -40,6 +69,13 @@ class Connection
     return $messages;
   }
 
+  /**
+   * Get Attachments from a message by msgId
+   * 
+   * @param string $userId User ID
+   * @param string $msgId Message ID
+   * @return Attachment[] List of Attachments
+   */
   public function getAttachments($userId, $msgId)
   {
     $attachments = $this->graph
@@ -49,6 +85,14 @@ class Connection
     return $attachments;
   }
 
+  /**
+   * Get FileAttachment from a message by attachmentId
+   * 
+   * @param string $userId User ID
+   * @param string $msgId Message ID
+   * @param string $attachmentId Attachment ID
+   * @return FileAttachment The Attachment File
+   */
   public function getFileAttachment($userId, $msgId, $attachmentId)
   {
     $fileAttachment = $this->graph
@@ -58,6 +102,13 @@ class Connection
     return $fileAttachment;
   }
 
+  /**
+   * Remove a Message to Deleted Items folder
+   * 
+   * @param string $userId User ID
+   * @param string $msgId Message ID
+   * @return Message The Deleted Message
+   */
   public function deleteMessage($userId, $msgId)
   {
     $message = $this->graph
@@ -68,6 +119,13 @@ class Connection
     return $message;
   }
 
+  /**
+   * Get Drives from a user by userId
+   * 
+   * @param string $userId User ID
+   * @param int $limit Search Limit, Default to 10
+   * @return Drive[] List of Drives
+   */
   public function getDrives($userId, $limit=10)
   {
     $drives = $this->graph
@@ -77,6 +135,14 @@ class Connection
     return $drives;
   }
 
+  /**
+   * Get Folders from a user by path
+   * 
+   * @param string $userId User ID
+   * @param string $path Folder Location
+   * @param int $limit Search Limit, Default to 10
+   * @return DriveItem[] List of DriveItems
+   */
   public function getFolders($userId, $path, $limit=10)
   {
     $folders = $this->graph
@@ -86,6 +152,14 @@ class Connection
     return $folders;
   }
 
+  /**
+   * Get Files from a user by path
+   * 
+   * @param string $userId User ID
+   * @param string $path Folder Location
+   * @param int $limit Search Limit, Default to 10
+   * @return File[] List of Files
+   */
   public function getFiles($userId, $path, $limit=10)
   {
     $files = $this->graph

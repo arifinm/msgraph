@@ -2,10 +2,26 @@
 
 namespace pkpudev\graph;
 
+/**
+ * Get byte range for Resumable File Upload 
+ * 
+ * @author Zein Miftah <zmiftahdev@gmail.com>
+ * @license MIT
+ */
 class ByteRangeCollection implements \IteratorAggregate
 {
+  /**
+   * @var array Range data
+   */
   protected $range = [];
 
+  /**
+   * Class Constructor
+   * 
+   * @param string $fileSize File Size
+   * @param string $limit Limit for chunk
+   * @return void
+   */
 	public function __construct($fileSize, $limit)
 	{ 
     $chunks = $this->getChunkSizes($fileSize, $limit);
@@ -19,11 +35,21 @@ class ByteRangeCollection implements \IteratorAggregate
     }
   }
 
+  /**
+   * Implementation of IteratorAggregate Interface
+   * 
+   * @return ArrayIterator Iterator
+   */
   public function getIterator()
 	{
 		return new \ArrayIterator($this->range);
   }
   
+  /**
+   * Get array of chunk sizes
+   * 
+   * @return int[] Array of chunk sizes
+   */
   protected function getChunkSizes($size, $limit)
   {
     $maxIteration = ceil($size / $limit);
@@ -36,13 +62,40 @@ class ByteRangeCollection implements \IteratorAggregate
   }
 }
 
+/**
+ * Byte range class
+ * 
+ * @author Zein Miftah <zmiftahdev@gmail.com>
+ * @license MIT
+ */
 class ByteRange
 {
+  /**
+   * @var int Start byte
+   */
   public $start;
+  /**
+   * @var int End byte
+   */
   public $end;
+  /**
+   * @var int Limit / Length
+   */
   public $limit;
+  /**
+   * @var int Size
+   */
   public $size;
 
+  /**
+   * Class Constructor
+   * 
+   * @param int $start Start
+   * @param int $end End
+   * @param int $limit Limit
+   * @param int $size Size
+   * @return void
+   */
   public function __construct($start, $end, $limit, $size)
   {
     $this->start = $start;

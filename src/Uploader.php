@@ -9,13 +9,32 @@ use GuzzleHttp\Psr7\Request;
 use Microsoft\Graph\Graph;
 use Microsoft\Graph\Http\GraphResponse;
 
+/**
+ * Uploader for Ms Graph Model
+ * 
+ * @author Zein Miftah <zmiftahdev@gmail.com>
+ * @license MIT
+ */
 class Uploader
 {
   const UPLOAD_LIMIT = 60000000; //60mb
 
+  /**
+   * @var Graph Graph object
+   */
   protected $graph;
+  /**
+   * @var int Chunk Limit for Resumable Upload
+   */
   protected $limit;
 
+  /**
+   * Class Constructor
+   * 
+   * @param string $token Access Token
+   * @param int $limit Chunk Limit for Resumable Upload
+   * @return void
+   */
   public function __construct($token, $limit=1024)
   {
     $this->graph = new Graph;
@@ -23,6 +42,14 @@ class Uploader
     $this->limit = $limit;
   }
 
+  /**
+   * Create Session for Resumable Upload
+   * 
+   * @param string $userId User ID
+   * @param string $itemId Item ID
+   * @param string $filename Filename
+   * @return array|null Response Body containing uploadUrl
+   */
   public function createSession($userId, $itemId, $filename)
   {
     $url = '/users/%s/drive/items/%s:/%s:/createUploadSession';
@@ -44,6 +71,12 @@ class Uploader
     return null;
   }
 
+  /**
+   * Delete Session for Resumable Upload
+   * 
+   * @param string $uploadUrl Upload URL
+   * @return bool
+   */
   public function deleteSession($uploadUrl)
   {
     $response = $this->graph
@@ -53,6 +86,13 @@ class Uploader
     return $response->getStatus() == 204;
   }
 
+  /**
+   * Upload a File after create session
+   * 
+   * @param string $uploadUrl Upload URL
+   * @param string $filename Filename
+   * @return bool
+   */
   public function postFile($uploadUrl, $filename)
   {
     $stream = $this->createStream($filename);
@@ -68,6 +108,13 @@ class Uploader
     return in_array($response->getStatusCode(), [200, 201]);
   }
 
+  /**
+   * Resumable Upload by chunks after create session
+   * 
+   * @param string $uploadUrl Upload URL
+   * @param string $filename Filename
+   * @return bool
+   */
   public function postFileByChunks($uploadUrl, $filename)
   {
     $fileStream = $this->createStream($filename);
@@ -91,7 +138,13 @@ class Uploader
     return in_array($lastStatus, [200, 201]);
   }
 
-  protected function createStream($filename, $limit=0)
+  /**
+   * Create a stream and add validation
+   * 
+   * @param string $filename Filename
+   * @return bool
+   */
+  protected function createStream($filename)
   {
     $stream = Psr7\stream_for(fopen($filename, 'r+'));
     if ($stream->getSize() >= self::UPLOAD_LIMIT) {
@@ -100,6 +153,14 @@ class Uploader
     return $stream;
   }
 
+  /**
+   * Send a PUT Request for upload a file
+   * 
+   * @param string $uploadUrl Upload URL
+   * @param array $headers Array of Headers
+   * @param StreamInterface $stream The Stream
+   * @return bool
+   */
   protected function sendRequest($uploadUrl, $headers, $stream)
   {
     $request = new Request("PUT", $uploadUrl, $headers, $stream);

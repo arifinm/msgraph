@@ -4,6 +4,9 @@ namespace pkpudev\graph;
 
 use Microsoft\Graph\Graph;
 use Microsoft\Graph\Model\Attachment;
+use Microsoft\Graph\Model\Drive;
+use Microsoft\Graph\Model\DriveItem;
+use Microsoft\Graph\Model\File;
 use Microsoft\Graph\Model\FileAttachment;
 use Microsoft\Graph\Model\Message;
 use Microsoft\Graph\Model\User;
@@ -18,10 +21,11 @@ class Connection
     $this->graph->setAccessToken($token);
   }
 
-  public function getUsers($limit = 10)
+  public function getUsers($search, $limit = 10)
   {
+    $url = "/users?\$top=%s&\$filter=startswith(displayName,'%s')";
     $users = $this->graph
-      ->createRequest("GET", '/users?$top='.$limit)
+      ->createRequest("GET", sprintf($url, $limit, $search))
       ->setReturnType(User::class)
       ->execute();
     return $users;
@@ -62,5 +66,32 @@ class Connection
       ->setReturnType(Message::class)
       ->execute();
     return $message;
+  }
+
+  public function getDrives($userId, $limit=10)
+  {
+    $drives = $this->graph
+      ->createRequest("GET", sprintf('/users/%s/drives?$top=%s', $userId, $limit))
+      ->setReturnType(Drive::class)
+      ->execute();
+    return $drives;
+  }
+
+  public function getFolders($userId, $path, $limit=10)
+  {
+    $folders = $this->graph
+      ->createRequest("GET", sprintf('/users/%s/drive/root:/%s:/children?$top=%s', $userId, $path, $limit))
+      ->setReturnType(DriveItem::class)
+      ->execute();
+    return $folders;
+  }
+
+  public function getFiles($userId, $path, $limit=10)
+  {
+    $files = $this->graph
+      ->createRequest("GET", sprintf('/users/%s/drive/root:/%s:/children?$top=%s', $userId, $path, $limit))
+      ->setReturnType(File::class)
+      ->execute();
+    return $files;
   }
 }
